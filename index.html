@@ -236,6 +236,52 @@
             </div>
 
             <!-- Sleep & Diaper Views... -->
+            
+        <!-- Sleep View -->
+        <div id="sleep-view" class="view hidden">
+            <h2>Track Sleep</h2>
+            <div class="timer-display" id="sleep-timer">00:00:00</div>
+            <button id="start-sleep-btn">Start Sleep</button>
+            <button id="end-sleep-btn" style="margin-top:10px; background:#e74c3c">End Sleep</button>
+            <div style="margin-top:20px; border-top:1px solid #eee; padding-top:20px">
+                <h3>Manual Entry</h3>
+                <div class="form-group">
+                    <label>Start Time</label>
+                    <input type="datetime-local" id="sleep-manual-start">
+                </div>
+                <div class="form-group">
+                    <label>End Time</label>
+                    <input type="datetime-local" id="sleep-manual-end">
+                </div>
+                <div class="form-group">
+                    <label>Notes</label>
+                    <textarea id="sleep-notes" rows="3" placeholder="Quality of sleep, wakeups, etc."></textarea>
+                </div>
+                <button id="save-sleep-btn">Save Sleep Entry</button>
+            </div>
+        </div>
+
+        <!-- Diaper View -->
+        <div id="diaper-view" class="view hidden">
+            <h2>Track Diaper Change</h2>
+            <div class="form-group">
+                <label>Type</label>
+                <div style="display:flex; gap:10px; margin-bottom:20px">
+                    <button class="diaper-type-btn" data-type="wet" style="flex:1">💧 Wet</button>
+                    <button class="diaper-type-btn" data-type="dirty" style="flex:1">💩 Dirty</button>
+                    <button class="diaper-type-btn" data-type="both" style="flex:1">💧💩 Both</button>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Time</label>
+                <input type="datetime-local" id="diaper-time">
+            </div>
+            <div class="form-group">
+                <label>Notes</label>
+                <textarea id="diaper-notes" rows="3" placeholder="Rash, color, consistency, etc."></textarea>
+            </div>
+            <button id="save-diaper-btn">Save Diaper Change</button>
+        </div>
         </div>
     </div>
 
@@ -486,6 +532,156 @@
             tab.classList.add('active');
         });
     });
+
+            // ===== SLEEP TRACKING =====
+    let sleepTimer = null;
+    let sleepStartTime = null;
+    
+    const startSleepBtn = document.getElementById('start-sleep-btn');
+    const endSleepBtn = document.getElementById('end-sleep-btn');
+    const saveSleepBtn = document.getElementById('save-sleep-btn');
+    const sleepTimerDisplay = document.getElementById('sleep-timer');
+    const sleepManualStart = document.getElementById('sleep-manual-start');
+    const sleepManualEnd = document.getElementById('sleep-manual-end');
+    const sleepNotes = document.getElementById('sleep-notes');
+    
+    startSleepBtn.addEventListener('click', () => {
+        if (sleepTimer) return; // Already running
+        
+        sleepStartTime = new Date();
+        startSleepBtn.disabled = true;
+        startSleepBtn.style.opacity = '0.5';
+        
+        let seconds = 0;
+        sleepTimer = setInterval(() => {
+            seconds++;
+            const h = Math.floor(seconds / 3600);
+            const m = Math.floor((seconds % 3600) / 60);
+            const s = seconds % 60;
+            sleepTimerDisplay.textContent = 
+                String(h).padStart(2, '0') + ':' + 
+                String(m).padStart(2, '0') + ':' + 
+                String(s).padStart(2, '0');
+        }, 1000);
+    });
+    
+    endSleepBtn.addEventListener('click', async () => {
+        if (!sleepTimer || !currentBabyId) return;
+        
+        clearInterval(sleepTimer);
+        sleepTimer = null;
+        
+        const endTime = new Date();
+        const duration = Math.floor((endTime - sleepStartTime) / 1000 / 60); // minutes
+        
+        const { error } = await supabase
+            .from('activities')
+            .insert([{
+                baby_id: currentBabyId,
+                activity_type: 'sleep',
+                timestamp: sleepStartTime.toISOString(),
+                notes: `Duration: ${duration} minutes (${sleepTimerDisplay.textContent})`
+            }]);
+        
+        if (error) {
+            alert('Error saving: ' + error.message);
+        } else {
+            sleepTimerDisplay.textContent = '00:00:00';
+            sleepStartTime = null;
+            startSleepBtn.disabled = false;
+            startSleepBtn.style.opacity = '1';
+            loadActivities();
+            alert('Sleep session saved!');
+        }
+    });
+    
+    saveSleepBtn.addEventListener('click', async () => {
+        if (!currentBabyId) {
+            alert('Please select a baby profile first');
+            return;
+        }
+        
+        if (!sleepManualStart.value) {
+            alert('Please enter start time');
+            return;
+        }
+        
+        const startTime = new Date(sleepManualStart.value);
+        const endTime = sleepManualEnd.value ? new Date(sleepManualEnd.value) : new Date();
+        const duration = Math.floor((endTime - startTime) / 1000 / 60);
+        
+        const { error } = await supabase
+            .from('activities')
+            .insert([{
+                baby_id: currentBabyId,
+                activity_type: 'sleep',
+                timestamp: startTime.toISOString(),
+                notes: `Duration: ${duration} minutes. ${sleepNotes.value || ''}`
+            }]);
+        
+        if (error) {
+            alert('Error saving: ' + error.message);
+        } else {
+            sleepManualStart.value = '';
+            sleepManualEnd.value = '';
+            sleepNotes.value = '';
+            loadActivities();
+            alert('Sleep entry saved!');
+        }
+    });
+    
+    // ===== DIAPER TRACKING =====
+    let selectedDiaperType = null;
+    const diaperTypeBtns = document.querySelectorAll('.diaper-type-btn');
+    const saveDiaperBtn = document.getElementById('save-diaper-btn');
+    const diaperTime = document.getElementById('diaper-time');
+    const diaperNotes = document.getElementById('diaper-notes');
+    
+    // Set default time to now
+    diaperTime.value = new Date().toISOString().slice(0, 16);
+    
+    diaperTypeBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            selectedDiaperType = btn.dataset.type;
+            diaperTypeBtns.forEach(b => b.style.opacity = '0.5');
+            btn.style.opacity = '1';
+        });
+    });
+    
+    saveDiaperBtn.addEventListener('click', async () => {
+        if (!currentBabyId) {
+            alert('Please select a baby profile first');
+            return;
+        }
+        
+        if (!selectedDiaperType) {
+            alert('Please select diaper type');
+            return;
+        }
+        
+        const timestamp = diaperTime.value ? new Date(diaperTime.value) : new Date();
+        
+        const { error } = await supabase
+            .from('activities')
+            .insert([{
+                baby_id: currentBabyId,
+                activity_type: 'diaper_' + selectedDiaperType,
+                timestamp: timestamp.toISOString(),
+                notes: diaperNotes.value || ''
+            }]);
+        
+        if (error) {
+            alert('Error saving: ' + error.message);
+        } else {
+            selectedDiaperType = null;
+            diaperTypeBtns.forEach(b => b.style.opacity = '1');
+            diaperTime.value = new Date().toISOString().slice(0, 16);
+            diaperNotes.value = '';
+            loadActivities();
+            alert('Diaper change saved!');
+        }
+    });
+
     
     // ===== EXPORT DATA =====
     document.getElementById('export-btn').addEventListener('click', async () => {
