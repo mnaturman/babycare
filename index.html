@@ -157,8 +157,20 @@
 </head>
 <body>
     <div class="container">
+                <!-- Landing Page -->
+        <div id="landing-page">
+            <h1 style="text-align:center; font-size:48px; margin-bottom:20px">🍼 Baby Care Tracker</h1>
+            <p style="text-align:center; font-size:20px; max-width:600px; margin:0 auto 30px; line-height:1.6">
+                Track your baby's feeding, sleep, and diaper changes all in one place. 
+                Simple, beautiful, and secure cloud-based baby care tracking.
+            </p>
+            <div style="text-align:center; margin-top:40px">
+                <button id="get-started-btn" style="padding:16px 40px; font-size:20px; background:var(--bg-gradient); color:white; border:none; border-radius:10px; cursor:pointer; font-weight:600">Get Started</button>
+            </div>
+        </div>
+
         <!-- Auth Section -->
-        <div id="auth-container">
+        <div id="auth-contain hiddener">
             <h1 id="auth-title">Welcome</h1>
             <form id="auth-form">
                 <div class="form-group">
@@ -705,3 +717,36 @@
         a.download = 'baby_activities.csv';
         a.click();
     });
+
+                // ===== LANDING PAGE & AUTH TOGGLE =====
+        document.addEventListener('DOMContentLoaded', () => {
+            const getStartedBtn = document.getElementById('get-started-btn');
+            const toggleAuthLink = document.getElementById('toggle-auth');
+            const landingPage = document.getElementById('landing-page');
+            const authContainer = document.getElementById('auth-contain');
+            
+            if (getStartedBtn) {
+                getStartedBtn.addEventListener('click', () => {
+                    if (landingPage) landingPage.style.display = 'none';
+                    if (authContainer) authContainer.classList.remove('hidener');
+                });
+            }
+            
+            if (toggleAuthLink) {
+                toggleAuthLink.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const authTitle = document.getElementById('auth-title');
+                    const authBtn = document.getElementById('auth-btn');
+                    
+                    if (authTitle && authTitle.textContent === 'Sign In') {
+                        authTitle.textContent = 'Sign Up';
+                        authBtn.textContent = 'Sign Up';
+                        toggleAuthLink.innerHTML = 'Already have an account? <span style="text-decoration:underline">Sign In</span>';
+                    } else {
+                        authTitle.textContent = 'Sign In';
+                        authBtn.textContent = 'Sign In';
+                        toggleAuthLink.innerHTML = 'Need an account? <span style="text-decoration:underline">Sign Up</span>';
+                    }
+                });
+            }
+        });
