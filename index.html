@@ -32,6 +32,8 @@
             padding: 20px;
         }
 
+                .hidener { display: none; }
+
         #auth-container, #app-container {
             background: var(--white);
             padding: 30px;
@@ -170,7 +172,7 @@
         </div>
 
         <!-- Auth Section -->
-        <div id="auth-contain hiddener">
+        <div id="auth-container" class="hidener">
             <h1 id="auth-title">Welcome</h1>
             <form id="auth-form">
                 <div class="form-group">
@@ -723,7 +725,7 @@
             const getStartedBtn = document.getElementById('get-started-btn');
             const toggleAuthLink = document.getElementById('toggle-auth');
             const landingPage = document.getElementById('landing-page');
-            const authContainer = document.getElementById('auth-contain');
+            const authContainer = document.getElementById('auth-contain'er);
             
             if (getStartedBtn) {
                 getStartedBtn.addEventListener('click', () => {
