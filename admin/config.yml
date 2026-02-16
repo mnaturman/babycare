@@ -1,0 +1,19 @@
+backend:
+  name: git-gateway
+  branch: main
+
+media_folder: "images/uploads"
+public_folder: "/images/uploads"
+
+collections:
+  - name: "pages"
+    label: "Pages"
+    files:
+      - label: "Landing Page"
+        name: "landing"
+        file: "index.html"
+        fields:
+          - {label: "Title", name: "title", widget: "string", default: "🍼 Baby Care Tracker"}
+          - {label: "Description", name: "description", widget: "text", default: "Track your baby's feeding, sleep, and diaper changes all in one place."}
+          - {label: "Button Text", name: "button_text", widget: "string", default: "Get Started"}
+          - {label: "Login Button Text", name: "login_button", widget: "string", default: "Already have an account? Login"}
