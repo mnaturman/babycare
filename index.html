@@ -3,778 +3,351 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Baby Care Tracker | Nanit-style</title>
-    <!-- Supabase Client Library -->
+    <title>Baby Care Tracker</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        :root {
-            --primary: #667eea;
-            --secondary: #764ba2;
-            --bg-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            --white: #ffffff;
-            --gray-100: #f8f9fa;
-            --gray-200: #e9ecef;
-            --text: #333;
-        }
-
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        
         body {
             font-family: -apple-system, system-ui, sans-serif;
-            background: var(--bg-gradient);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
-            color: var(--text);
+            color: #333;
         }
-
         .container {
             max-width: 500px;
             margin: 0 auto;
             padding: 20px;
         }
-
-                .hidener { display: none; }
-
-        #auth-container, #app-container {
-            background: var(--white);
-            padding: 30px;
+        .auth-container, .app-container {
+            background: white;
             border-radius: 20px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-            margin-top: 50px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
         }
-
         .hidden { display: none; }
-
-        h1, h2 { text-align: center; margin-bottom: 25px; color: var(--primary); }
-
-        .form-group { margin-bottom: 20px; }
-        label { display: block; margin-bottom: 8px; font-weight: 600; }
-        input, select, textarea {
+        h1 {
+            text-align: center;
+            color: #667eea;
+            margin-bottom: 30px;
+            font-size: 32px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #555;
+        }
+        input, textarea, select {
             width: 100%;
             padding: 12px;
-            border: 2px solid var(--gray-200);
+            border: 2px solid #e0e0e0;
             border-radius: 10px;
             font-size: 16px;
+            transition: border-color 0.3s;
         }
-
+        input:focus, textarea:focus, select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
         button {
             width: 100%;
             padding: 14px;
-            background: var(--bg-gradient);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             border: none;
             border-radius: 10px;
-            font-size: 18px;
+            font-size: 16px;
             font-weight: 600;
             cursor: pointer;
             transition: transform 0.2s;
+            margin-top: 10px;
         }
-
-        button:hover { transform: translateY(-2px); }
-
-        .nav-tabs {
-            display: flex;
-            justify-content: space-around;
-            margin-bottom: 20px;
-            background: var(--gray-100);
-            padding: 10px;
-            border-radius: 10px;
-            position: sticky;
-            top: 0;
-            z-index: 100;
+        button:hover {
+            transform: translateY(-2px);
         }
-
-        .tab {
-            padding: 8px 16px;
-            cursor: pointer;
+        button:active {
+            transform: translateY(0);
+        }
+        .secondary-btn {
+            background: #f0f0f0;
+            color: #667eea;
+        }
+        .error {
+            background: #fee;
+            color: #c00;
+            padding: 12px;
             border-radius: 8px;
-            font-size: 20px;
+            margin-bottom: 15px;
         }
-
-        .tab.active { background: var(--primary); color: white; }
-
-        .timer-display {
-            font-size: 32px;
-            text-align: center;
-            margin: 20px 0;
-            font-weight: bold;
-            font-family: monospace;
+        .success {
+            background: #efe;
+            color: #060;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 15px;
         }
-
-        .breast-buttons {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 20px;
-        }
-
-        .camera-placeholder {
-            width: 100%;
-            aspect-ratio: 16/9;
-            background: #000;
-            border-radius: 10px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            color: #fff;
-            margin-bottom: 20px;
-            position: relative;
-        }
-
-        .camera-overlay {
-            position: absolute;
-            top: 10px;
-            left: 10px;
-            background: rgba(0,0,0,0.5);
-            padding: 5px 10px;
-            border-radius: 5px;
-            font-size: 12px;
-        }
-
-        .activity-card {
-            background: var(--gray-100);
+        .activity-item {
+            background: #f8f9fa;
             padding: 15px;
             border-radius: 10px;
             margin-bottom: 10px;
-            border-left: 5px solid var(--primary);
+            border-left: 4px solid #667eea;
         }
-
-        .profile-selector {
+        .activity-type {
+            font-weight: 600;
+            color: #667eea;
+            text-transform: capitalize;
+        }
+        .activity-time {
+            color: #666;
+            font-size: 14px;
+            margin-top: 5px;
+        }
+        .tabs {
             display: flex;
             gap: 10px;
             margin-bottom: 20px;
-            overflow-x: auto;
-            padding-bottom: 10px;
         }
-
-        .profile-btn {
-            padding: 10px 20px;
-            background: var(--gray-200);
-            border-radius: 20px;
+        .tab {
+            flex: 1;
+            padding: 10px;
+            background: #f0f0f0;
+            border: none;
+            border-radius: 10px;
             cursor: pointer;
-            white-space: nowrap;
+            font-weight: 600;
         }
-
-        .profile-btn.active { background: var(--primary); color: white; }
+        .tab.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
     </style>
-        <!-- Netlify Identity Widget -->
-        <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
 </head>
 <body>
     <div class="container">
-                <!-- Landing Page -->
-        <div id="landing-page">
-            <h1 style="text-align:center; font-size:48px; margin-bottom:20px; color:white; white-space:nowrap;">🍼 Baby Care Tracker</h1>
-            <p style="text-align:center; font-size:20px; max-width:600px; margin:0 auto 30px; line-height:1.6">
-                Track your baby's feeding, sleep, and diaper changes all in one place. 
-                Simple, beautiful, and secure cloud-based baby care tracking.
-            </p>
-            <div style="text-align:center; margin-top:40px">
-                <button id="get-started-btn" style="padding:16px 40px; font-size:20px; background:var(
-                                    <button id="login-btn" style="padding:16px 40px; font-size:20px; background:transparent; color:white; border:2px solid white; border-radius:30px; cursor:pointer; margin-top:20px;">Already have an account? Login</button>--bg-gradient); color:white; border:none; border-radius:10px; cursor:pointer; font-weight:600">Get Started</button>
-            </div>
-        </div>
-
-        <!-- Auth Section -->
-        <div id="auth-container" class="hidener">
-            <h1 id="auth-title">Welcome</h1>
-            <form id="auth-form">
-                <div class="form-group">
-                    <label>Email</label>
-                    <input type="email" id="email" required>
-                </div>
-                <div class="form-group">
-                    <label>Password</label>
-                    <input type="password" id="password" required>
-                </div>
-                <button type="submit" id="auth-btn">Sign In</button>
-            </form>
-            <p style="text-align:center; margin-top:15px; cursor:pointer" id="toggle-auth">Need an account? Sign Up</p>
-        </div>
-
-        <!-- Main App Section -->
-        <div id="app-container" class="hidden">
-            <div class="profile-selector" id="baby-profiles">
-                <!-- Profiles dynamically loaded -->
-                <div class="profile-btn active">+ Add Baby</div>
-            </div>
-
-            <div class="nav-tabs">
-                <div class="tab active" data-view="dashboard">🏠</div>
-                <div class="tab" data-view="feed">🍼</div>
-                <div class="tab" data-view="sleep">💤</div>
-                <div class="tab" data-view="diaper">🧷</div>
-                <div class="tab" data-view="camera">📹</div>
-            </div>
-
-            <!-- Camera View -->
-            <div id="camera-view" class="view hidden">
-                <h2>Live Stream</h2>
-                <div class="camera-placeholder">
-                    <div class="camera-overlay">LIVE • Nursery</div>
-                    <span>Connecting to Eufy Baby Camera...</span>
-                    <p style="font-size:12px; margin-top:10px; color:#aaa">RTSP Stream Placeholder</p>
-                </div>
-                <div class="form-group">
-                    <label>Camera IP / RTSP URL</label>
-                    <input type="text" id="camera-url" placeholder="rtsp://admin:password@192.168.1.100:554/live">
-                </div>
-            </div>
-
-            <!-- Dashboard View -->
-            <div id="dashboard-view" class="view">
-                <h2>Activity Log</h2>
-                <div id="activity-list">
-                    <!-- Activities loaded from Supabase -->
-                </div>
-                <button id="export-btn" style="margin-top:20px">Export Data (CSV)</button>
-            </div>
-
-            <!-- Feed View -->
-            <div id="feed-view" class="view hidden">
-                <h2>Track Feed</h2>
-                <div class="breast-buttons">
-                    <button id="left-btn">Left</button>
-                    <button id="right-btn">Right</button>
-                    <button id="bottle-btn">Bottle</button>
-                </div>
-                <div class="timer-display" id="feed-timer">00:00:00</div>
-                <button id="save-feed-btn">Save Entry</button>
-                <div style="margin-top:20px; border-top:1px solid #eee; padding-top:20px">
-                    <h3>Manual Entry</h3>
-                    <div class="form-group">
-                        <label>Start Time</label>
-                        <input type="datetime-local" id="manual-start">
-                    </div>
-                    <div class="form-group">
-                        <label>End Time</label>
-                        <input type="datetime-local" id="manual-end">
-                    </div>
-                </div>
-            </div>
-
-            <!-- Sleep & Diaper Views... -->
+        <!-- Auth Screen -->
+        <div id="authContainer" class="auth-container">
+            <h1>🍼 Baby Care Tracker</h1>
+            <div id="authError" class="error hidden"></div>
             
-        <!-- Sleep View -->
-        <div id="sleep-view" class="view hidden">
-            <h2>Track Sleep</h2>
-            <div class="timer-display" id="sleep-timer">00:00:00</div>
-            <button id="start-sleep-btn">Start Sleep</button>
-            <button id="end-sleep-btn" style="margin-top:10px; background:#e74c3c">End Sleep</button>
-            <div style="margin-top:20px; border-top:1px solid #eee; padding-top:20px">
-                <h3>Manual Entry</h3>
-                <div class="form-group">
-                    <label>Start Time</label>
-                    <input type="datetime-local" id="sleep-manual-start">
-                </div>
-                <div class="form-group">
-                    <label>End Time</label>
-                    <input type="datetime-local" id="sleep-manual-end">
-                </div>
-                <div class="form-group">
-                    <label>Notes</label>
-                    <textarea id="sleep-notes" rows="3" placeholder="Quality of sleep, wakeups, etc."></textarea>
-                </div>
-                <button id="save-sleep-btn">Save Sleep Entry</button>
+            <div class="form-group">
+                <label>Email</label>
+                <input type="email" id="authEmail" placeholder="your@email.com">
             </div>
+            
+            <div class="form-group">
+                <label>Password</label>
+                <input type="password" id="authPassword" placeholder="••••••••">
+            </div>
+            
+            <button onclick="signIn()">Sign In</button>
+            <button class="secondary-btn" onclick="signUp()">Create Account</button>
         </div>
 
-        <!-- Diaper View -->
-        <div id="diaper-view" class="view hidden">
-            <h2>Track Diaper Change</h2>
-            <div class="form-group">
-                <label>Type</label>
-                <div style="display:flex; gap:10px; margin-bottom:20px">
-                    <button class="diaper-type-btn" data-type="wet" style="flex:1">💧 Wet</button>
-                    <button class="diaper-type-btn" data-type="dirty" style="flex:1">💩 Dirty</button>
-                    <button class="diaper-type-btn" data-type="both" style="flex:1">💧💩 Both</button>
+        <!-- App Screen -->
+        <div id="appContainer" class="app-container hidden">
+            <h1>🍼 Baby Care Tracker</h1>
+            <p style="text-align: center; margin-bottom: 20px;" id="userEmail"></p>
+            
+            <div class="tabs">
+                <button class="tab active" onclick="showTab('add')">Add Activity</button>
+                <button class="tab" onclick="showTab('history')">History</button>
+            </div>
+
+            <!-- Add Activity Tab -->
+            <div id="addTab">
+                <div id="activitySuccess" class="success hidden"></div>
+                
+                <div class="form-group">
+                    <label>Activity Type</label>
+                    <select id="activityType">
+                        <option value="feed">🍼 Feeding</option>
+                        <option value="sleep">😴 Sleep</option>
+                        <option value="diaper">👶 Diaper Change</option>
+                    </select>
                 </div>
+                
+                <div class="form-group">
+                    <label>Duration (minutes)</label>
+                    <input type="number" id="duration" placeholder="15">
+                </div>
+                
+                <div class="form-group">
+                    <label>Notes (optional)</label>
+                    <textarea id="notes" rows="3" placeholder="Any notes..."></textarea>
+                </div>
+                
+                <button onclick="addActivity()">Save Activity</button>
             </div>
-            <div class="form-group">
-                <label>Time</label>
-                <input type="datetime-local" id="diaper-time">
+
+            <!-- History Tab -->
+            <div id="historyTab" class="hidden">
+                <div id="activitiesList"></div>
             </div>
-            <div class="form-group">
-                <label>Notes</label>
-                <textarea id="diaper-notes" rows="3" placeholder="Rash, color, consistency, etc."></textarea>
-            </div>
-            <button id="save-diaper-btn">Save Diaper Change</button>
-        </div>
+
+            <button class="secondary-btn" onclick="signOut()">Sign Out</button>
         </div>
     </div>
 
     <script>
-            // ===== SUPABASE CONFIGURATION =====
-    const SUPABASE_URL = 'https://gtrhqxrnonsizxrieylk.supabase.co';
-    const SUPABASE_ANON_KEY = 'sb_publishable_St06WHeiu1kuUblJsfEmnQ_lxr34hbd';
-    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-    
-    let currentUser = null;
-    let currentBabyId = null;
-    let feedTimer = null;
-    let feedStartTime = null;
-    let currentFeedType = null;
-    
-    // ===== DOM ELEMENTS =====
-    const authContainer = document.getElementById('auth-container');
-    const appContainer = document.getElementById('app-container');
-    const authForm = document.getElementById('auth-form');
-    const authBtn = document.getElementById('auth-btn');
-    const toggleAuth = document.getElementById('toggle-auth');
-    const emailInput = document.getElementById('email');
-    const passwordInput = document.getElementById('password');
-    
-    // Views
-    const views = document.querySelectorAll('.view');
-    const tabs = document.querySelectorAll('.tab');
-    
-    // Feed tracking
-    const leftBtn = document.getElementById('left-btn');
-    const rightBtn = document.getElementById('right-btn');
-    const bottleBtn = document.getElementById('bottle-btn');
-    const saveFeedBtn = document.getElementById('save-feed-btn');
-    const feedTimerDisplay = document.getElementById('feed-timer');
-    
-    // ===== AUTHENTICATION =====
-    let isSignUp = false;
-    
-    toggleAuth.addEventListener('click', () => {
-        isSignUp = !isSignUp;
-        authBtn.textContent = isSignUp ? 'Sign Up' : 'Sign In';
-        toggleAuth.textContent = isSignUp ? 'Already have an account? Sign In' : 'Need an account? Sign Up';
-        document.getElementById('auth-title').textContent = isSignUp ? 'Create Account' : 'Welcome';
-    });
-    
-    authForm.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const email = emailInput.value;
-        const password = passwordInput.value;
-        
-        try {
-            if (isSignUp) {
-                const { data, error } = await supabase.auth.signUp({ email, password });
-                if (error) throw error;
-                alert('Account created! Please check your email to verify.');
+        // Initialize Supabase
+        const supabase = supabase.createClient(
+            'https://gtrhqxrnonsizxrieylk.supabase.co',
+            'sb_publishable_St06WHeiu1kuUblJsfEmnQ_lxr34hbd'
+        );
+
+        // Check if user is logged in
+        supabase.auth.getSession().then(({ data: { session } }) => {
+            if (session) {
+                showApp(session.user);
+            }
+        });
+
+        // Listen for auth changes
+        supabase.auth.onAuthStateChange((event, session) => {
+            if (session) {
+                showApp(session.user);
             } else {
-                const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-                if (error) throw error;
-                currentUser = data.user;
-                showApp();
+                showAuth();
             }
-        } catch (error) {
-            alert('Error: ' + error.message);
-        }
-    });
-    
-    // Check if user is already logged in
-    supabase.auth.onAuthStateChange((event, session) => {
-        if (session?.user) {
-            currentUser = session.user;
-            showApp();
-        }
-    });
-    
-    function showApp() {
-        authContainer.classList.add('hidden');
-        appContainer.classList.remove('hidden');
-        loadBabies();
-        loadActivities();
-    }
-    
-    // ===== BABY PROFILES =====
-    async function loadBabies() {
-        const { data, error } = await supabase
-            .from('babies')
-            .select('*')
-            .order('created_at', { ascending: true });
-        
-        if (error) {
-            console.error('Error loading babies:', error);
-            return;
-        }
-        
-        const profilesDiv = document.getElementById('baby-profiles');
-        profilesDiv.innerHTML = '';
-        
-        data.forEach(baby => {
-            const btn = document.createElement('div');
-            btn.className = 'profile-btn';
-            btn.textContent = baby.name;
-            btn.onclick = () => selectBaby(baby.id, btn);
-            profilesDiv.appendChild(btn);
         });
-        
-        // Add baby button
-        const addBtn = document.createElement('div');
-        addBtn.className = 'profile-btn';
-        addBtn.textContent = '+ Add Baby';
-        addBtn.onclick = addBaby;
-        profilesDiv.appendChild(addBtn);
-        
-        if (data.length > 0 && !currentBabyId) {
-            selectBaby(data[0].id, profilesDiv.firstChild);
-        }
-    }
-    
-    function selectBaby(babyId, btn) {
-        currentBabyId = babyId;
-        document.querySelectorAll('.profile-btn').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        loadActivities();
-    }
-    
-    async function addBaby() {
-        const name = prompt('Baby name:');
-        if (!name) return;
-        
-        const birthDate = prompt('Birth date (YYYY-MM-DD):');
-        if (!birthDate) return;
-        
-        const { error } = await supabase
-            .from('babies')
-            .insert([{ name, birth_date: birthDate }]);
-        
-        if (error) {
-            alert('Error adding baby: ' + error.message);
-        } else {
-            loadBabies();
-        }
-    }
-    
-    // ===== FEED TRACKING =====
-    leftBtn.addEventListener('click', () => startFeed('left'));
-    rightBtn.addEventListener('click', () => startFeed('right'));
-    bottleBtn.addEventListener('click', () => startFeed('bottle'));
-    
-    function startFeed(type) {
-        if (feedTimer) {
-            clearInterval(feedTimer);
-        }
-        
-        currentFeedType = type;
-        feedStartTime = new Date();
-        
-        [leftBtn, rightBtn, bottleBtn].forEach(btn => btn.style.opacity = '0.5');
-        document.getElementById(type + '-btn').style.opacity = '1';
-        
-        let seconds = 0;
-        feedTimer = setInterval(() => {
-            seconds++;
-            const h = Math.floor(seconds / 3600);
-            const m = Math.floor((seconds % 3600) / 60);
-            const s = seconds % 60;
-            feedTimerDisplay.textContent = 
-                String(h).padStart(2, '0') + ':' + 
-                String(m).padStart(2, '0') + ':' + 
-                String(s).padStart(2, '0');
-        }, 1000);
-    }
-    
-    saveFeedBtn.addEventListener('click', async () => {
-        if (!currentBabyId) {
-            alert('Please select a baby profile first');
-            return;
-        }
-        
-        if (!feedStartTime) {
-            alert('Please start a feed first');
-            return;
-        }
-        
-        const { error } = await supabase
-            .from('activities')
-            .insert([{
-                baby_id: currentBabyId,
-                activity_type: 'feed_' + currentFeedType,
-                timestamp: feedStartTime.toISOString(),
-                notes: 'Duration: ' + feedTimerDisplay.textContent
-            }]);
-        
-        if (error) {
-            alert('Error saving: ' + error.message);
-        } else {
-            if (feedTimer) clearInterval(feedTimer);
-            feedTimer = null;
-            feedStartTime = null;
-            feedTimerDisplay.textContent = '00:00:00';
-            [leftBtn, rightBtn, bottleBtn].forEach(btn => btn.style.opacity = '1');
-            loadActivities();
-            alert('Feed saved!');
-        }
-    });
-    
-    // ===== ACTIVITY LOG =====
-    async function loadActivities() {
-        if (!currentBabyId) return;
-        
-        const { data, error } = await supabase
-            .from('activities')
-            .select('*')
-            .eq('baby_id', currentBabyId)
-            .order('timestamp', { ascending: false })
-            .limit(20);
-        
-        if (error) {
-            console.error('Error loading activities:', error);
-            return;
-        }
-        
-        const activityList = document.getElementById('activity-list');
-        activityList.innerHTML = '';
-        
-        if (data.length === 0) {
-            activityList.innerHTML = '<p style="text-align:center;color:#999">No activities yet</p>';
-            return;
-        }
-        
-        data.forEach(activity => {
-            const card = document.createElement('div');
-            card.className = 'activity-card';
-            const date = new Date(activity.timestamp);
-            card.innerHTML = `
-                <strong>${activity.activity_type.replace('_', ' ').toUpperCase()}</strong><br>
-                <small>${date.toLocaleString()}</small><br>
-                ${activity.notes || ''}
-            `;
-            activityList.appendChild(card);
-        });
-    }
-    
-    // ===== VIEW NAVIGATION =====
-    tabs.forEach(tab => {
-        tab.addEventListener('click', () => {
-            const viewName = tab.dataset.view + '-view';
-            views.forEach(v => v.classList.add('hidden'));
-            document.getElementById(viewName).classList.remove('hidden');
-            tabs.forEach(t => t.classList.remove('active'));
-            tab.classList.add('active');
-        });
-    });
 
-            // ===== SLEEP TRACKING =====
-    let sleepTimer = null;
-    let sleepStartTime = null;
-    
-    const startSleepBtn = document.getElementById('start-sleep-btn');
-    const endSleepBtn = document.getElementById('end-sleep-btn');
-    const saveSleepBtn = document.getElementById('save-sleep-btn');
-    const sleepTimerDisplay = document.getElementById('sleep-timer');
-    const sleepManualStart = document.getElementById('sleep-manual-start');
-    const sleepManualEnd = document.getElementById('sleep-manual-end');
-    const sleepNotes = document.getElementById('sleep-notes');
-    
-    startSleepBtn.addEventListener('click', () => {
-        if (sleepTimer) return; // Already running
-        
-        sleepStartTime = new Date();
-        startSleepBtn.disabled = true;
-        startSleepBtn.style.opacity = '0.5';
-        
-        let seconds = 0;
-        sleepTimer = setInterval(() => {
-            seconds++;
-            const h = Math.floor(seconds / 3600);
-            const m = Math.floor((seconds % 3600) / 60);
-            const s = seconds % 60;
-            sleepTimerDisplay.textContent = 
-                String(h).padStart(2, '0') + ':' + 
-                String(m).padStart(2, '0') + ':' + 
-                String(s).padStart(2, '0');
-        }, 1000);
-    });
-    
-    endSleepBtn.addEventListener('click', async () => {
-        if (!sleepTimer || !currentBabyId) return;
-        
-        clearInterval(sleepTimer);
-        sleepTimer = null;
-        
-        const endTime = new Date();
-        const duration = Math.floor((endTime - sleepStartTime) / 1000 / 60); // minutes
-        
-        const { error } = await supabase
-            .from('activities')
-            .insert([{
-                baby_id: currentBabyId,
-                activity_type: 'sleep',
-                timestamp: sleepStartTime.toISOString(),
-                notes: `Duration: ${duration} minutes (${sleepTimerDisplay.textContent})`
-            }]);
-        
-        if (error) {
-            alert('Error saving: ' + error.message);
-        } else {
-            sleepTimerDisplay.textContent = '00:00:00';
-            sleepStartTime = null;
-            startSleepBtn.disabled = false;
-            startSleepBtn.style.opacity = '1';
-            loadActivities();
-            alert('Sleep session saved!');
-        }
-    });
-    
-    saveSleepBtn.addEventListener('click', async () => {
-        if (!currentBabyId) {
-            alert('Please select a baby profile first');
-            return;
-        }
-        
-        if (!sleepManualStart.value) {
-            alert('Please enter start time');
-            return;
-        }
-        
-        const startTime = new Date(sleepManualStart.value);
-        const endTime = sleepManualEnd.value ? new Date(sleepManualEnd.value) : new Date();
-        const duration = Math.floor((endTime - startTime) / 1000 / 60);
-        
-        const { error } = await supabase
-            .from('activities')
-            .insert([{
-                baby_id: currentBabyId,
-                activity_type: 'sleep',
-                timestamp: startTime.toISOString(),
-                notes: `Duration: ${duration} minutes. ${sleepNotes.value || ''}`
-            }]);
-        
-        if (error) {
-            alert('Error saving: ' + error.message);
-        } else {
-            sleepManualStart.value = '';
-            sleepManualEnd.value = '';
-            sleepNotes.value = '';
-            loadActivities();
-            alert('Sleep entry saved!');
-        }
-    });
-    
-    // ===== DIAPER TRACKING =====
-    let selectedDiaperType = null;
-    const diaperTypeBtns = document.querySelectorAll('.diaper-type-btn');
-    const saveDiaperBtn = document.getElementById('save-diaper-btn');
-    const diaperTime = document.getElementById('diaper-time');
-    const diaperNotes = document.getElementById('diaper-notes');
-    
-    // Set default time to now
-    diaperTime.value = new Date().toISOString().slice(0, 16);
-    
-    diaperTypeBtns.forEach(btn => {
-        btn.addEventListener('click', () => {
-            selectedDiaperType = btn.dataset.type;
-            diaperTypeBtns.forEach(b => b.style.opacity = '0.5');
-            btn.style.opacity = '1';
-        });
-    });
-    
-    saveDiaperBtn.addEventListener('click', async () => {
-        if (!currentBabyId) {
-            alert('Please select a baby profile first');
-            return;
-        }
-        
-        if (!selectedDiaperType) {
-            alert('Please select diaper type');
-            return;
-        }
-        
-        const timestamp = diaperTime.value ? new Date(diaperTime.value) : new Date();
-        
-        const { error } = await supabase
-            .from('activities')
-            .insert([{
-                baby_id: currentBabyId,
-                activity_type: 'diaper_' + selectedDiaperType,
-                timestamp: timestamp.toISOString(),
-                notes: diaperNotes.value || ''
-            }]);
-        
-        if (error) {
-            alert('Error saving: ' + error.message);
-        } else {
-            selectedDiaperType = null;
-            diaperTypeBtns.forEach(b => b.style.opacity = '1');
-            diaperTime.value = new Date().toISOString().slice(0, 16);
-            diaperNotes.value = '';
-            loadActivities();
-            alert('Diaper change saved!');
-        }
-    });
-
-    
-    // ===== EXPORT DATA =====
-    document.getElementById('export-btn').addEventListener('click', async () => {
-        if (!currentBabyId) return;
-        
-        const { data } = await supabase
-            .from('activities')
-            .select('*')
-            .eq('baby_id', currentBabyId)
-            .order('timestamp', { ascending: false });
-        
-        let csv = 'Timestamp,Activity Type,Notes\n';
-        data.forEach(a => {
-            csv += `${a.timestamp},${a.activity_type},"${a.notes || ''}"\n`;
-        });
-        
-        const blob = new Blob([csv], { type: 'text/csv' });
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = 'baby_activities.csv';
-        a.click();
-    });
-
-                // ===== LANDING PAGE & AUTH TOGGLE =====
-        document.addEventListener('DOMContentLoaded', () => {
-            const getStartedBtn = document.getElementById('get-started-btn');
-            const toggleAuthLink = document.getElementById('toggle-auth');
-            const landingPage = document.getElementById('landing-page');
-            const authContainer = document.getElementById('auth-contain'er);
+        async function signUp() {
+            const email = document.getElementById('authEmail').value;
+            const password = document.getElementById('authPassword').value;
             
-            if (getStartedBtn) {
-                getStartedBtn.addEventListener('click', () => {
-                    if (landingPage) landingPage.style.display = 'none';
-                    if (authContainer) authContainer.classList.remove('hidener');
-                });
+            if (!email || !password) {
+                showError('Please enter email and password');
+                return;
             }
 
-                        // Login button
-            const loginBtn = document.getElementById('login-btn');
-            if (loginBtn) {
-                loginBtn.addEventListener('click', () => {
-                    if (landingPage) landingPage.style.display = 'none';
-                    if (authContainer) authContainer.classList.remove('hidener');
-                });
-            }
+            const { data, error } = await supabase.auth.signUp({ email, password });
             
-            if (toggleAuthLink) {
-                toggleAuthLink.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    const authTitle = document.getElementById('auth-title');
-                    const authBtn = document.getElementById('auth-btn');
-                    
-                    if (authTitle && authTitle.textContent === 'Sign In') {
-                        authTitle.textContent = 'Sign Up';
-                        authBtn.textContent = 'Sign Up';
-                        toggleAuthLink.innerHTML = 'Already have an account? <span style="text-decoration:underline">Sign In</span>';
-                    } else {
-                        authTitle.textContent = 'Sign In';
-                        authBtn.textContent = 'Sign In';
-                        toggleAuthLink.innerHTML = 'Need an account? <span style="text-decoration:underline">Sign Up</span>';
-                    }
-                });
+            if (error) {
+                showError(error.message);
+            } else {
+                showError('Check your email for confirmation link!', 'success');
             }
-        });
+        }
 
-            <!-- Netlify Identity Redirect -->
-                    <script>
-                        if (window.netlifyIdentity) {
-                            window.netlifyIdentity.on("init", user => {
-                                                if (!user) {
-                                                                        window.netlifyIdentity.on("login", () => {
-                                                                                                    document.location.href = "/admin/";
-                                                                                                });
-                                                                    }
-                                            });
-                        }
-            </script>
-    </body>
+        async function signIn() {
+            const email = document.getElementById('authEmail').value;
+            const password = document.getElementById('authPassword').value;
+            
+            if (!email || !password) {
+                showError('Please enter email and password');
+                return;
+            }
+
+            const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+            
+            if (error) {
+                showError(error.message);
+            }
+        }
+
+        async function signOut() {
+            await supabase.auth.signOut();
+        }
+
+        async function addActivity() {
+            const type = document.getElementById('activityType').value;
+            const duration = parseInt(document.getElementById('duration').value);
+            const notes = document.getElementById('notes').value;
+
+            const { data, error } = await supabase
+                .from('baby_activities')
+                .insert([{
+                    activity_type: type,
+                    duration: duration || null,
+                    notes: notes || null
+                }]);
+
+            if (error) {
+                alert('Error saving activity: ' + error.message);
+            } else {
+                document.getElementById('activitySuccess').textContent = 'Activity saved!';
+                document.getElementById('activitySuccess').classList.remove('hidden');
+                document.getElementById('duration').value = '';
+                document.getElementById('notes').value = '';
+                setTimeout(() => {
+                    document.getElementById('activitySuccess').classList.add('hidden');
+                }, 3000);
+            }
+        }
+
+        async function loadActivities() {
+            const { data, error } = await supabase
+                .from('baby_activities')
+                .select('*')
+                .order('created_at', { ascending: false })
+                .limit(20);
+
+            if (error) {
+                document.getElementById('activitiesList').innerHTML = 
+                    '<p style="color: #999; text-align: center;">Error loading activities</p>';
+                return;
+            }
+
+            if (!data || data.length === 0) {
+                document.getElementById('activitiesList').innerHTML = 
+                    '<p style="color: #999; text-align: center;">No activities yet</p>';
+                return;
+            }
+
+            const html = data.map(activity => `
+                <div class="activity-item">
+                    <div class="activity-type">${getActivityEmoji(activity.activity_type)} ${activity.activity_type}</div>
+                    ${activity.duration ? `<div>${activity.duration} minutes</div>` : ''}
+                    ${activity.notes ? `<div style="color: #666; margin-top: 5px;">${activity.notes}</div>` : ''}
+                    <div class="activity-time">${new Date(activity.created_at).toLocaleString()}</div>
+                </div>
+            `).join('');
+
+            document.getElementById('activitiesList').innerHTML = html;
+        }
+
+        function getActivityEmoji(type) {
+            const emojis = { feed: '🍼', sleep: '😴', diaper: '👶' };
+            return emojis[type] || '📝';
+        }
+
+        function showError(message, type = 'error') {
+            const el = document.getElementById('authError');
+            el.textContent = message;
+            el.className = type;
+            el.classList.remove('hidden');
+        }
+
+        function showApp(user) {
+            document.getElementById('authContainer').classList.add('hidden');
+            document.getElementById('appContainer').classList.remove('hidden');
+            document.getElementById('userEmail').textContent = user.email;
+            loadActivities();
+        }
+
+        function showAuth() {
+            document.getElementById('authContainer').classList.remove('hidden');
+            document.getElementById('appContainer').classList.add('hidden');
+        }
+
+        function showTab(tab) {
+            if (tab === 'add') {
+                document.getElementById('addTab').classList.remove('hidden');
+                document.getElementById('historyTab').classList.add('hidden');
+                document.querySelectorAll('.tab')[0].classList.add('active');
+                document.querySelectorAll('.tab')[1].classList.remove('active');
+            } else {
+                document.getElementById('addTab').classList.add('hidden');
+                document.getElementById('historyTab').classList.remove('hidden');
+                document.querySelectorAll('.tab')[0].classList.remove('active');
+                document.querySelectorAll('.tab')[1].classList.add('active');
+                loadActivities();
+            }
+        }
+    </script>
+</body>
+</html>
